@@ -40,6 +40,9 @@ class GameState:
         
         # Settings
         self.settings = DEFAULT_SETTINGS
+        
+        # Track previous movement direction for smooth transitions
+        self.previous_movement_direction = (0, 0)
 
     def initialize(self):
         """Initialize the game state."""
@@ -121,6 +124,45 @@ class GameState:
                 ))
             return result['success']
 
+        return False
+    
+    def process_continuous_movement(self, direction: tuple, delta_time: float) -> bool:
+        """
+        Process continuous movement with combined direction (for held keys).
+        Args:
+            direction: (dx, dy) tuple representing movement direction
+            delta_time: Time since last update
+        Returns True if movement was handled.
+        """
+        if not self.is_running or self.is_paused:
+            return False
+            
+        if not self.settings.enable_continuous_movement:
+            return False
+            
+        dx, dy = direction
+        
+        # Only process if there's actual movement
+        if dx == 0 and dy == 0:
+            self.previous_movement_direction = (0, 0)
+            return False
+            
+        # Check if direction changed
+        direction_changed = direction != self.previous_movement_direction
+        self.previous_movement_direction = direction
+            
+        # Check if enough time has passed for another movement
+        if self.player_controller.can_move_continuously(delta_time, direction_changed):
+            # Use the movement system to move in the combined direction
+            success = self.movement_system.move_entity(self.player_entity, dx, dy)
+            
+            if success:
+                pos = self.player_controller.get_position()
+                self.event_bus.publish(Event(
+                    EventType.ENTITY_MOVED,
+                    {'entity_id': self.player_entity.id, 'x': pos.x, 'y': pos.y}
+                ))
+            return success
         return False
     
     def process_continuous_command(self, command: str, delta_time: float) -> bool:
