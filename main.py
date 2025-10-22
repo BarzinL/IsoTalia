@@ -43,6 +43,11 @@ class InputHandler:
             pygame.K_w, pygame.K_UP, pygame.K_s, pygame.K_DOWN,
             pygame.K_a, pygame.K_LEFT, pygame.K_d, pygame.K_RIGHT
         }
+        
+        # Movement buffer system
+        self.movement_buffer_timer = 0.0
+        self.movement_buffer_active = False
+        self.initial_direction_buffered = False
 
     def process_event(self, event: pygame.event.Event) -> list:
         """
@@ -51,6 +56,13 @@ class InputHandler:
         commands = []
 
         if event.type == pygame.KEYDOWN:
+            # Check if this is a movement key and we're not already moving
+            if event.key in self.movement_keys and len(self.held_keys) == 0:
+                # Start movement buffer for the first movement key
+                self.movement_buffer_timer = 0.0
+                self.movement_buffer_active = True
+                self.initial_direction_buffered = False
+            
             self.held_keys.add(event.key)
 
             # Map to game command
@@ -66,8 +78,57 @@ class InputHandler:
         elif event.type == pygame.KEYUP:
             if event.key in self.held_keys:
                 self.held_keys.remove(event.key)
+                
+            # If no movement keys are held, reset buffer
+            if not any(key in self.movement_keys for key in self.held_keys):
+                self.movement_buffer_active = False
+                self.initial_direction_buffered = False
 
         return commands
+    
+    def update_movement_buffer(self, delta_time: float):
+        """Update the movement buffer timer."""
+        if self.movement_buffer_active:
+            self.movement_buffer_timer += delta_time
+    
+    def get_continuous_movement_direction(self) -> tuple:
+        """
+        Get combined movement direction from currently held movement keys.
+        Returns (dx, dy) tuple representing the combined movement direction.
+        """
+        dx, dy = 0, 0
+        
+        # Check each held movement key and accumulate direction
+        for key in self.held_keys:
+            if key in self.movement_keys and key in self.key_map:
+                command = self.key_map[key]
+                if command == 'move_north':
+                    dy -= 1
+                elif command == 'move_south':
+                    dy += 1
+                elif command == 'move_east':
+                    dx += 1
+                elif command == 'move_west':
+                    dx -= 1
+        
+        # If we're in the buffer period and haven't buffered the initial direction yet
+        if self.movement_buffer_active and not self.initial_direction_buffered:
+            # Check if buffer period has elapsed
+            from core.settings import DEFAULT_SETTINGS
+            if self.movement_buffer_timer >= DEFAULT_SETTINGS.movement_buffer_duration:
+                self.initial_direction_buffered = True
+                self.movement_buffer_active = False
+            else:
+                # Still in buffer period, don't move yet
+                return (0, 0)
+        
+        # Normalize diagonal movement to prevent faster diagonal movement
+        if dx != 0 and dy != 0:
+            # For diagonal movement, we keep both components
+            # The movement system will handle the actual movement
+            pass
+        
+        return (dx, dy)
     
     def get_continuous_movement_commands(self) -> list:
         """
@@ -138,17 +199,27 @@ class Game:
         elif command == 'toggle_debug':
             self.renderer.toggle_debug()
         else:
-            # Pass to game state
-            self.game_state.process_command(command)
+            # For movement commands, only process if continuous movement is disabled
+            # or if it's a non-movement command
+            if command.startswith('move_'):
+                # Don't process individual movement commands here anymore
+                # They're handled by the continuous movement system
+                pass
+            else:
+                # Pass non-movement commands to game state
+                self.game_state.process_command(command)
 
     def update(self, delta_time: float):
         """Update game state."""
-        # Get continuous movement commands
-        continuous_commands = self.input_handler.get_continuous_movement_commands()
+        # Update movement buffer
+        self.input_handler.update_movement_buffer(delta_time)
         
-        # Process continuous movement
-        for command in continuous_commands:
-            self.game_state.process_continuous_command(command, delta_time)
+        # Get combined movement direction
+        movement_direction = self.input_handler.get_continuous_movement_direction()
+        
+        # Process continuous movement with combined direction
+        if movement_direction != (0, 0):
+            self.game_state.process_continuous_movement(movement_direction, delta_time)
         
         # Regular update
         self.game_state.update(delta_time)

@@ -21,12 +21,14 @@ class GameSettings:
     
     # Input settings
     enable_continuous_movement: bool = True
+    movement_buffer_duration: float = 0.08  # Seconds to buffer key presses for diagonal movement
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert settings to dictionary for serialization."""
         return {
             'movement_frequency': self.movement_frequency,
-            'enable_continuous_movement': self.enable_continuous_movement
+            'enable_continuous_movement': self.enable_continuous_movement,
+            'movement_buffer_duration': self.movement_buffer_duration
         }
     
     @classmethod
@@ -34,7 +36,8 @@ class GameSettings:
         """Create settings from dictionary."""
         return cls(
             movement_frequency=data.get('movement_frequency', 4.0),
-            enable_continuous_movement=data.get('enable_continuous_movement', True)
+            enable_continuous_movement=data.get('enable_continuous_movement', True),
+            movement_buffer_duration=data.get('movement_buffer_duration', 0.08)
         )
     
     def save_to_file(self, file_path: Path) -> bool:

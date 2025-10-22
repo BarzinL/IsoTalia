@@ -85,11 +85,19 @@ class PlayerController:
         health = self.get_health()
         return health is not None and health.is_alive
     
-    def can_move_continuously(self, delta_time: float) -> bool:
+    def can_move_continuously(self, delta_time: float, reset_timer: bool = False) -> bool:
         """
         Check if player can move based on movement frequency timer.
         Returns True if enough time has passed for another movement.
+        
+        Args:
+            delta_time: Time since last update
+            reset_timer: If True, reset the timer (used when direction changes)
         """
+        if reset_timer:
+            self.movement_timer = 0.0
+            return True
+            
         self.movement_timer += delta_time
         movement_interval = 1.0 / self.movement_frequency
         
