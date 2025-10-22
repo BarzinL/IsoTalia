@@ -168,16 +168,39 @@ class Camera:
 
     def get_visible_bounds(self) -> Tuple[int, int, int, int]:
         """
-        Get approximate world bounds of visible area.
-        Returns (min_x, min_y, max_x, max_y) with padding.
+        Get world bounds of visible area for isometric projection.
+        Returns (min_x, min_y, max_x, max_y) with proper padding.
         """
-        # Rough estimate - tiles in view
-        tiles_wide = (self.screen_width // self.tile_width) + 4
-        tiles_high = (self.screen_height // self.tile_height) + 4
-
-        min_x = int(self.x - tiles_wide // 2)
-        max_x = int(self.x + tiles_wide // 2)
-        min_y = int(self.y - tiles_high // 2)
-        max_y = int(self.y + tiles_high // 2)
-
+        # Create a converter for calculations
+        converter = IsometricConverter(self.tile_width, self.tile_height)
+        
+        # Get camera center position in screen coordinates
+        cam_screen_x, cam_screen_y = converter.world_to_screen(int(self.x), int(self.y), 0)
+        
+        # Calculate screen corners relative to camera center
+        screen_corners = [
+            (-self.screen_width // 2, -self.screen_height // 2),  # Top-left
+            (self.screen_width // 2, -self.screen_height // 2),   # Top-right
+            (self.screen_width // 2, self.screen_height // 2),    # Bottom-right
+            (-self.screen_width // 2, self.screen_height // 2)    # Bottom-left
+        ]
+        
+        # Convert screen corners to world coordinates
+        world_coords = []
+        for corner_x, corner_y in screen_corners:
+            # Adjust for camera position
+            screen_x = cam_screen_x + corner_x
+            screen_y = cam_screen_y + corner_y
+            
+            # Convert to world coordinates
+            world_x, world_y = converter.screen_to_world(screen_x, screen_y, 0)
+            world_coords.append((world_x, world_y))
+        
+        # Find bounds with padding
+        padding = 2  # Add some padding to ensure edge tiles are included
+        min_x = min(coord[0] for coord in world_coords) - padding
+        max_x = max(coord[0] for coord in world_coords) + padding
+        min_y = min(coord[1] for coord in world_coords) - padding
+        max_y = max(coord[1] for coord in world_coords) + padding
+        
         return (min_x, min_y, max_x, max_y)

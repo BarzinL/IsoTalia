@@ -99,13 +99,13 @@ class TileMap:
         """
         render_list = []
 
-        # Add some padding to ensure we render all visible tiles
-        padding = 2
-
-        start_x = max(0, camera_x - padding)
-        end_x = min(self.width, camera_x + view_width + padding)
-        start_y = max(0, camera_y - padding)
-        end_y = min(self.height, camera_y + view_height + padding)
+        # The camera_x and camera_y now represent the top-left corner of the viewport
+        # view_width and view_height represent the dimensions of the viewport
+        
+        start_x = max(0, camera_x)
+        end_x = min(self.width, camera_x + view_width)
+        start_y = max(0, camera_y)
+        end_y = min(self.height, camera_y + view_height)
 
         for x in range(start_x, end_x):
             for y in range(start_y, end_y):
