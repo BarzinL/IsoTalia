@@ -142,8 +142,8 @@ class Game:
         view_height = max_y - min_y
 
         render_data = self.game_state.get_render_data(
-            camera_x=int(self.renderer.camera.x),
-            camera_y=int(self.renderer.camera.y),
+            camera_x=min_x,
+            camera_y=min_y,
             view_width=view_width,
             view_height=view_height
         )

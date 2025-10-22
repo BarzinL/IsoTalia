@@ -167,6 +167,36 @@ class PyGameRenderer:
             text_surface = self.small_font.render(line, True, (255, 255, 0))
             self.screen.blit(text_surface, (10, y_offset))
             y_offset += 20
+            
+        # Render viewport bounds visualization
+        self._render_debug_bounds(render_data)
+        
+    def _render_debug_bounds(self, render_data: dict):
+        """Render debug visualization of viewport bounds."""
+        min_x, min_y, max_x, max_y = self.camera.get_visible_bounds()
+        
+        # Draw corners of the calculated bounds
+        corners = [
+            (min_x, min_y), (max_x, min_y),
+            (max_x, max_y), (min_x, max_y)
+        ]
+        
+        for world_x, world_y in corners:
+            screen_x, screen_y = self.camera.world_to_screen_with_camera(
+                world_x, world_y, 0, self.iso_converter
+            )
+            pygame.draw.circle(self.screen, (255, 0, 0), (int(screen_x), int(screen_y)), 5)
+            
+        # Draw bounds rectangle
+        corner_points = []
+        for world_x, world_y in corners:
+            screen_x, screen_y = self.camera.world_to_screen_with_camera(
+                world_x, world_y, 0, self.iso_converter
+            )
+            corner_points.append((int(screen_x), int(screen_y)))
+            
+        if len(corner_points) >= 3:
+            pygame.draw.polygon(self.screen, (255, 0, 0), corner_points, 1)
 
     def center_camera_on(self, world_x: int, world_y: int):
         """Center camera on world position."""
