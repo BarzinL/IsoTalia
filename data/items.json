@@ -1,0 +1,64 @@
+{
+  "resources": {
+    "dirt": {
+      "name": "Dirt Pile",
+      "category": "material",
+      "stackable": true,
+      "max_stack": 99,
+      "description": "Common dirt, useful for filling holes"
+    },
+    "small_rocks": {
+      "name": "Small Rocks",
+      "category": "material",
+      "stackable": true,
+      "max_stack": 99,
+      "description": "Pebbles and small stones"
+    },
+    "concrete_chunk": {
+      "name": "Concrete Chunk",
+      "category": "material",
+      "stackable": true,
+      "max_stack": 50,
+      "description": "Broken pieces of concrete"
+    },
+    "rebar": {
+      "name": "Rebar",
+      "category": "metal",
+      "stackable": true,
+      "max_stack": 20,
+      "description": "Reinforcement bar from old structures"
+    },
+    "scrap_metal": {
+      "name": "Scrap Metal",
+      "category": "metal",
+      "stackable": true,
+      "max_stack": 50,
+      "description": "Rusted metal pieces, can be smelted"
+    },
+    "brick": {
+      "name": "Brick",
+      "category": "material",
+      "stackable": true,
+      "max_stack": 99,
+      "description": "Old building brick"
+    }
+  },
+  "tools": {
+    "shovel": {
+      "name": "Shovel",
+      "category": "tool",
+      "tool_type": "shovel",
+      "power": 2,
+      "durability": 100,
+      "description": "Basic digging tool"
+    },
+    "pickaxe": {
+      "name": "Pickaxe",
+      "category": "tool",
+      "tool_type": "pickaxe",
+      "power": 3,
+      "durability": 100,
+      "description": "For breaking hard materials"
+    }
+  }
+}
