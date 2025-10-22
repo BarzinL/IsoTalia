@@ -10,6 +10,7 @@ from .entities.player import create_player, PlayerController
 from .systems.movement import MovementSystem
 from .systems.interaction import InteractionSystem
 from .events import EventBus, Event, EventType, EVENT_BUS
+from .settings import DEFAULT_SETTINGS
 
 
 class GameState:
@@ -36,6 +37,9 @@ class GameState:
         self.is_running = False
         self.is_paused = False
         self.game_time = 0.0  # Total elapsed game time
+        
+        # Settings
+        self.settings = DEFAULT_SETTINGS
 
     def initialize(self):
         """Initialize the game state."""
@@ -117,6 +121,33 @@ class GameState:
                 ))
             return result['success']
 
+        return False
+    
+    def process_continuous_command(self, command: str, delta_time: float) -> bool:
+        """
+        Process a continuous movement command (for held keys).
+        Returns True if command was handled.
+        """
+        if not self.is_running or self.is_paused:
+            return False
+            
+        if not self.settings.enable_continuous_movement:
+            return False
+            
+        # Only handle movement commands continuously
+        if command.startswith('move_'):
+            # Check if enough time has passed for another movement
+            if self.player_controller.can_move_continuously(delta_time):
+                success = self.movement_system.process_movement_command(
+                    self.player_entity, command
+                )
+                if success:
+                    pos = self.player_controller.get_position()
+                    self.event_bus.publish(Event(
+                        EventType.ENTITY_MOVED,
+                        {'entity_id': self.player_entity.id, 'x': pos.x, 'y': pos.y}
+                    ))
+                return success
         return False
 
     def get_render_data(self, camera_x: int, camera_y: int,

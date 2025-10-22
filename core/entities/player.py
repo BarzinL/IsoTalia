@@ -4,6 +4,7 @@ Player entity creation and player-specific logic.
 
 from .entity import Entity
 from .components import Position, Renderable, Movement, Inventory, Health, Tool
+from ..settings import DEFAULT_SETTINGS
 
 
 def create_player(x: int, y: int, z: int = 0) -> Entity:
@@ -53,6 +54,8 @@ class PlayerController:
 
     def __init__(self, player_entity: Entity):
         self.player = player_entity
+        self.movement_timer = 0.0  # Time since last movement
+        self.movement_frequency = DEFAULT_SETTINGS.movement_frequency
 
     def get_position(self) -> Position:
         """Get player's current position."""
@@ -81,3 +84,20 @@ class PlayerController:
         """Check if player is alive."""
         health = self.get_health()
         return health is not None and health.is_alive
+    
+    def can_move_continuously(self, delta_time: float) -> bool:
+        """
+        Check if player can move based on movement frequency timer.
+        Returns True if enough time has passed for another movement.
+        """
+        self.movement_timer += delta_time
+        movement_interval = 1.0 / self.movement_frequency
+        
+        if self.movement_timer >= movement_interval:
+            self.movement_timer = 0.0
+            return True
+        return False
+    
+    def set_movement_frequency(self, frequency: float):
+        """Set the movement frequency (movements per second)."""
+        self.movement_frequency = max(0.1, frequency)  # Prevent division by zero
