@@ -92,4 +92,4 @@ IsoTalia/
 
 ## License
 
-MIT License - See LICENSE file for details
+AGPLv3 License - See LICENSE file for details
