@@ -1,0 +1,44 @@
+{
+  "tiles": {
+    "void": {
+      "name": "Void",
+      "walkable": false,
+      "hardness": 0,
+      "texture_id": "void",
+      "drops": [],
+      "description": "Empty space"
+    },
+    "wasteland_dirt": {
+      "name": "Wasteland Dirt",
+      "walkable": true,
+      "hardness": 2,
+      "texture_id": "wasteland_dirt",
+      "drops": ["dirt", "small_rocks"],
+      "description": "Dry, cracked earth from the wasteland"
+    },
+    "cracked_pavement": {
+      "name": "Cracked Pavement",
+      "walkable": true,
+      "hardness": 4,
+      "texture_id": "cracked_pavement",
+      "drops": ["concrete_chunk", "rebar"],
+      "description": "Remains of old civilization infrastructure"
+    },
+    "rubble": {
+      "name": "Rubble Pile",
+      "walkable": false,
+      "hardness": 3,
+      "texture_id": "rubble",
+      "drops": ["scrap_metal", "concrete_chunk", "brick"],
+      "description": "Collapsed building materials blocking the way"
+    },
+    "toxic_water": {
+      "name": "Toxic Water",
+      "walkable": false,
+      "hardness": 0,
+      "texture_id": "toxic_water",
+      "drops": [],
+      "description": "Contaminated water that cannot be crossed"
+    }
+  }
+}
