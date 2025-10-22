@@ -37,6 +37,12 @@ class InputHandler:
 
         # Held keys for continuous movement
         self.held_keys = set()
+        
+        # Movement keys only (exclude action keys like dig, interact)
+        self.movement_keys = {
+            pygame.K_w, pygame.K_UP, pygame.K_s, pygame.K_DOWN,
+            pygame.K_a, pygame.K_LEFT, pygame.K_d, pygame.K_RIGHT
+        }
 
     def process_event(self, event: pygame.event.Event) -> list:
         """
@@ -61,6 +67,17 @@ class InputHandler:
             if event.key in self.held_keys:
                 self.held_keys.remove(event.key)
 
+        return commands
+    
+    def get_continuous_movement_commands(self) -> list:
+        """
+        Get movement commands for keys that are currently held down.
+        Returns list of movement commands that should be processed continuously.
+        """
+        commands = []
+        for key in self.held_keys:
+            if key in self.movement_keys and key in self.key_map:
+                commands.append(self.key_map[key])
         return commands
 
 
@@ -126,6 +143,14 @@ class Game:
 
     def update(self, delta_time: float):
         """Update game state."""
+        # Get continuous movement commands
+        continuous_commands = self.input_handler.get_continuous_movement_commands()
+        
+        # Process continuous movement
+        for command in continuous_commands:
+            self.game_state.process_continuous_command(command, delta_time)
+        
+        # Regular update
         self.game_state.update(delta_time)
 
         # Update camera to follow player
