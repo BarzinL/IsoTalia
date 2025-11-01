@@ -3,6 +3,7 @@ requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
 
 [project]
 name = "IsoTalia"
+version = "0.1.0"
 description = "3D isometric post-apocalyptic RPG with PyGame CE"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -11,7 +12,7 @@ authors = [
     {name = "IsoTalia Development Team", email = "dev@isotalia.game"}
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: End Users/Desktop",
     "License :: OSI Approved :: GNU Affero General Public License v3",
     "Operating System :: OS Independent",
