@@ -5,36 +5,50 @@ Framework-agnostic event bus.
 
 from typing import Callable, Dict, List, Any
 from dataclasses import dataclass
-from enum import Enum, auto
+from enum import Enum
 
 
 class EventType(Enum):
     """Enumeration of game events."""
+    # Game lifecycle events
+    GAME_STARTED = "GAME_STARTED"
+    GAME_PAUSED = "GAME_PAUSED"
+    GAME_RESUMED = "GAME_RESUMED"
+    GAME_ENDED = "GAME_ENDED"
+
     # Movement events
-    ENTITY_MOVED = auto()
-    MOVEMENT_BLOCKED = auto()
+    ENTITY_MOVED = "ENTITY_MOVED"
+    MOVEMENT_BLOCKED = "MOVEMENT_BLOCKED"
 
     # Interaction events
-    TILE_DIG = auto()
-    TILE_PLACED = auto()
-    RESOURCE_COLLECTED = auto()
+    TILE_DIG = "TILE_DIG"
+    TILE_PLACED = "TILE_PLACED"
+    RESOURCE_COLLECTED = "RESOURCE_COLLECTED"
+
+    # Combat events
+    COMBAT_STARTED = "COMBAT_STARTED"
+    COMBAT_ENDED = "COMBAT_ENDED"
 
     # Player events
-    PLAYER_DAMAGED = auto()
-    PLAYER_DIED = auto()
-    INVENTORY_CHANGED = auto()
-
-    # System events
-    GAME_STARTED = auto()
-    GAME_PAUSED = auto()
-    GAME_RESUMED = auto()
+    PLAYER_DAMAGED = "PLAYER_DAMAGED"
+    PLAYER_DIED = "PLAYER_DIED"
+    INVENTORY_CHANGED = "INVENTORY_CHANGED"
 
 
-@dataclass
+@dataclass(frozen=True)
 class Event:
-    """Base event class."""
+    """Base event class.
+    
+    Note: Uses frozen=True to make the dataclass immutable,
+    and creates a copy of data to ensure it cannot be modified.
+    """
     event_type: EventType
     data: Dict[str, Any]
+
+    def __post_init__(self):
+        """Create a deep copy of data to ensure immutability."""
+        if hasattr(self, '__dict__'):
+            object.__setattr__(self, 'data', self.data.copy())
 
 
 class EventBus:
