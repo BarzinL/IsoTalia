@@ -1,0 +1,232 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+
+[project]
+name = "IsoTalia"
+description = "3D isometric post-apocalyptic RPG with PyGame CE"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "AGPL-3.0"}
+authors = [
+    {name = "IsoTalia Development Team", email = "dev@isotalia.game"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Games/Entertainment :: Role-Playing",
+    "Topic :: Software Development :: Game Development",
+]
+
+dependencies = [
+    "pygame-ce>=2.4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-xdist>=3.0.0",
+    "pre-commit>=3.0.0",
+    "coverage[toml]>=7.0.0",
+]
+docs = [
+    "sphinx>=5.0.0",
+    "sphinx-rtd-theme>=1.2.0",
+    "myst-parser>=0.18.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/isotalia/isotalia"
+Documentation = "https://isotalia.readthedocs.io/"
+Repository = "https://github.com/isotalia/isotalia.git"
+"Bug Tracker" = "https://github.com/isotalia/isotalia/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["core*", "rendering*", "data*"]
+
+# Black configuration
+[tool.black]
+line-length = 88
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+# Ruff configuration
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+src = ["core", "rendering", "test_engine.py", "main.py"]
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle errors
+    "E",
+    # pycodestyle warnings
+    "W",
+    # pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+    # pep8-naming
+    "N",
+    # flake8-import-conventions
+    "ICN",
+    # flake8-gettext
+    "INT",
+    # flake8-function-calls
+    "C4",
+    # flake8-type-checking
+    "TCH",
+    # flake8-bandit
+    "S",
+    # flake8-future-annotations
+    "FA",
+    # flake8-return
+    "RET",
+    # flake8-simplify
+    "SIM",
+    # flake8-exception-handling
+    "EXE",
+    # flake8-logging-format
+    "G",
+    # flake8-implicit-str-concat
+    "ISC",
+    # flake8-unused-arguments
+    "ARG",
+    # flake8-raise
+    "RUF"
+]
+
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex (we'll handle complexity separately)
+    "W191",  # indentation contains tabs (handled by black)
+    "S311",  # use of random module (intentional for game randomness)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "E402"]  # unused imports, module-level import not at top
+"test_*.py" = ["S101", "S106"]  # assert statements, hardcoded passwords in tests
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["core", "rendering"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "core/__pycache__/*",
+    "rendering/__pycache__/*",
+    "*/venv/*",
+    "*/.venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+    "TYPE_CHECKING",
+]
+show_missing = true
+precision = 2
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+# Pytest configuration
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=core",
+    "--cov=rendering", 
+    "--cov-report=html",
+    "--cov-report=term-missing",
+    "--cov-fail-under=80",
+    "-v",
+]
+testpaths = ["tests"]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests", 
+    "slow: Slow running tests",
+    "game: Game engine tests",
+    "render: Rendering tests",
+    "system: System level tests",
+]
+filterwarnings = [
+    "error",
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+# MyPy configuration
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "pygame.*",
+    "pygame.*.*",
+]
+ignore_missing_imports = true
